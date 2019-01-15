@@ -24,13 +24,13 @@ button3_width = 450
 button3_height = 60
 
 def setup():
-    size(800, 700)
+    size(800, 700, P2D)
     frameRate(60)
     smooth()
     cursor(ARROW)
 
 def draw():
-    global page, button_x, button_y, button_width, button_height, button2_x, button2_y, button2_width, button2_height, button3_x, button3_y, button3_width, button3_height, playerlives, u 
+    global page, button_x, button_y, button_width, button_height, button2_x, button2_y, button2_width, button2_height, button3_x, button3_y, button3_width, button3_height, playerlives, bulletTimerPlayer, bulletTimerEnemy, u
     rectMode(CORNER)
     noStroke()
     textAlign(LEFT)
@@ -121,7 +121,7 @@ def draw():
         score = 0
         kills = 0
         combo = 0
-        background(0,0,0)
+        background(0, 0, 0)
         titlefont3 = createFont("Orbitron.ttf", 70)
         buttonfont3 = createFont("Orbitron.ttf", 50)
         statsfont = createFont("Orbitron.ttf", 70)
@@ -350,7 +350,7 @@ def game():
         rect(enemyBullet[0][0], enemyBullet[0][1], 10, 10)
         enemyBullet[0][1] += 10
         
-        if bulletTimerEnemy >= 75:
+        if bulletTimerEnemy >= 90:
             bulletTimerEnemy = 0
     except:
         pass
@@ -373,7 +373,7 @@ def death():
             page = 3
 
 def reset():
-    global x, y, playerlives, bullet, enemy, enemyBullet, z, bulletTimer, healthBar, page
+    global x, y, playerlives, bullet, enemy, enemyBullet, z, bulletEnemyTimer, bulletPlayerTimer, healthBar, page, u
     x, y, playerlives = 400, 550, 3
     bullet = [[0, 0], [0, 0], [0, 0]] #x-coordinate, y-coordinate of player/bullet, lives
     enemy = [[400, 100, 3]] #x-coordinate, y-coordinate, lives/17ms hit detection, bullet of enemies
@@ -381,6 +381,7 @@ def reset():
     z = True
     bulletTimer = 0
     healthBar = 40
+    u = enemy[0][2]
 
 def framecount():
     global enemy
