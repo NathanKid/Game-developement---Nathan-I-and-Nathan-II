@@ -10,6 +10,7 @@ bulletTimerEnemy = 0
 healthBar = 40
 page = 0
 u = enemy[0][2]
+a = 0
 
 button_x = 175
 button_y = 350
@@ -35,8 +36,9 @@ def setup():
     ebullet_sprite = loadImage("Enemy Bullet.png")
     player_sprite = loadImage("Plane.png")
     enemy1 = loadImage("Enemy.png")
+    
 def draw():
-    global page, button_x, button_y, button_width, button_height, button2_x, button2_y, button2_width, button2_height, button3_x, button3_y, button3_width, button3_height, playerlives, bulletTimerPlayer, bulletTimerEnemy, u, clickTimer
+    global page, button_x, button_y, button_width, button_height, button2_x, button2_y, button2_width, button2_height, button3_x, button3_y, button3_width, button3_height, playerlives, bulletTimerPlayer, bulletTimerEnemy, u, clickTimer, a
     rectMode(CORNER)
     noStroke()
     textAlign(LEFT)
@@ -206,7 +208,7 @@ def game():
     ebullet_sprite = loadImage("Enemy Bullet.png")
     player_sprite = loadImage("Plane.png")
     enemy1 = loadImage("Enemy.png")
-    global x, y, bullet, enemy, z, enemyBullet, bulletTimerEnemy, bulletTimerPlayer, healthBar, page, u, clickTimer
+    global x, y, bullet, enemy, z, enemyBullet, bulletTimerEnemy, bulletTimerPlayer, healthBar, page, u, clickTimer, a
     background(0)
     stroke(1)
     imageMode(CENTER)
@@ -238,12 +240,17 @@ def game():
             if playerLives == 20:
                 clickTimer = True
     except:
-        pass        
+        pass   
+        
+    if not clickTimer:
+        a += 1 
+        if a >= 25:
+            clickTimer = True
                             
     #bullets
     if mousePressed and clickTimer:
-        bulletTimerPlayer += 1 
-        
+        bulletTimerPlayer += 1
+            
     if bulletTimerPlayer == 1:
         del bullet[0][0]
         del bullet[0][0]  
@@ -392,21 +399,21 @@ def death():
 
 def reset():
     global x, y, playerlives, bullet, enemy, enemyBullet, z, bulletEnemyTimer, bulletPlayerTimer, healthBar, page, u
+    keys_pressed = [False for key_code in range(256)]
     x, y, playerlives = 400, 550, 3
-    bullet = [[0, 0], [0, 0], [0, 0]] #x-coordinate, y-coordinate of player/bullet, lives
+    bullet = [[0, 0], [0, 0], [0, 0]]#x-coordinate, y-coordinate of player/bullet, lives
     enemy = [[400, 100, 3]] #x-coordinate, y-coordinate, lives/17ms hit detection, bullet of enemies
     enemyBullet = [[400, 100]] #x-coordinate 
     z = True
-    bulletTimer = 0
+    bulletTimerPlayer = 0
+    clickTimer = True
+    bulletTimerEnemy = 0
     healthBar = 40
     u = enemy[0][2]
+    a = 0
 
 def framecount():
     global enemy
-    noStroke()
-    rectMode(CORNER)
-    fill(0, 0, 0, 150)
-    rect(0, 0, 42, 15)
     a = int(frameRate // 1)
     textSize(12)
     textAlign(LEFT, TOP)
@@ -425,13 +432,10 @@ def keyPressed():
 def keyReleased():
     global keys_pressed
     keys_pressed[keyCode] = False
-    
-def mousePressed(): #probably won't work
-    loop() 
-    
+
 def mouseReleased():
-    global bulletTimerPlayer, clickTimer
+    global bulletTimerPlayer, clickTimer, a
     bulletTimerPlayer = 0
     clickTimer = False
-    
+    a = 0
     
