@@ -1,12 +1,14 @@
 keys_pressed = [False for key_code in range(256)]
 x, y, playerlives = 400, 550, 3
-bullet = [[0, 0]] #x-coordinate, y-coordinate of player/bullet, lives
+bullet = [[0, 0], [0, 0], [0, 0]]#x-coordinate, y-coordinate of player/bullet, lives
 enemy = [[400, 100, 3]] #x-coordinate, y-coordinate, lives/17ms hit detection, bullet of enemies
 enemyBullet = [[400, 100]] #x-coordinate 
 z = True
-bulletTimer = 0
+bulletTimerPlayer = 0
+bulletTimerEnemy = 0
 healthBar = 40
 page = 0
+u = enemy[0][2]
 
 button_x = 175
 button_y = 350
@@ -28,7 +30,7 @@ def setup():
     cursor(ARROW)
 
 def draw():
-    global page, button_x, button_y, button_width, button_height, button2_x, button2_y, button2_width, button2_height, button3_x, button3_y, button3_width, button3_height, playerlives 
+    global page, button_x, button_y, button_width, button_height, button2_x, button2_y, button2_width, button2_height, button3_x, button3_y, button3_width, button3_height, playerlives, u 
     rectMode(CORNER)
     noStroke()
     textAlign(LEFT)
@@ -194,10 +196,9 @@ def draw():
 
 
 def game():
-    global x, y, bullet, enemy, z, enemyBullet, bulletTimer, healthBar, page
+    global x, y, bullet, enemy, z, enemyBullet, bulletTimerEnemy, bulletTimerPlayer, healthBar, page, u
     background(255)
     stroke(1)
-    bulletTimer += 1
     
     #main player
     rectMode(CENTER)
@@ -222,15 +223,37 @@ def game():
         if x >= 775:
             x = 775
     #bullets
-    if mousePressed and bulletTimer % 40 == 0:
+    if mousePressed:
+        bulletTimerPlayer += 1 
+        
+    if bulletTimerPlayer == 1:
         del bullet[0][0]
         del bullet[0][0]  
         bullet[0].append(x)
-        bullet[0].append(y)   
+        bullet[0].append(y) 
+            
+    if bulletTimerPlayer == 21:
+        del bullet[1][0]
+        del bullet[1][0]
+        bullet[1].append(x)
+        bullet[1].append(y)
+
+    if bulletTimerPlayer == 41: 
+        del bullet[2][0]
+        del bullet[2][0]
+        bullet[2].append(x)
+        bullet[2].append(y)
         
+    if bulletTimerPlayer >= 71:
+        bulletTimerPlayer = 0
+
     fill(0, 0, 255)
-    ellipse(bullet[0][0], bullet[0][1], 10, 10)
     bullet[0][1] -= 20
+    bullet[1][1] -= 20
+    bullet[2][1] -= 20
+    rect(bullet[0][0], bullet[0][1], 10, 10)
+    rect(bullet[1][0], bullet[1][1], 10, 10)
+    rect(bullet[2][0], bullet[2][1], 10, 10)
     
     #enemy death
     try:
@@ -245,16 +268,54 @@ def game():
             if enemy[0][2] == 0:
                 del enemy[0]
                 page = 4
-                
-            #bullet detection of player
             del bullet[0][0]
             del bullet[0][0]
             bullet[0].append(0)
             bullet[0].append(0) 
+            
+        elif (enemy[0][0] - 25 <= bullet[1][0] <= enemy[0][0] + 25 and
+            bullet[1][1] >= enemy[0][1] - 25 and 
+            bullet[1][1] <= enemy[0][1] + 25):
+            fill(255, 0, 0)
+            u = enemy[0][2] - 1
+            del enemy[0][2]
+            enemy[0].append(u)
+            if enemy[0][2] == 0:
+                del enemy[0]
+                page = 4
+            del bullet[1][0]
+            del bullet[1][0]
+            bullet[1].append(0)
+            bullet[1].append(0)
+            
+        elif (enemy[0][0] - 25 <= bullet[2][0] <= enemy[0][0] + 25 and 
+            bullet[2][1] >= enemy[0][1] - 25 and 
+            bullet[2][1] <= enemy[0][1] + 25):
+            fill(255, 0, 0)
+            u = enemy[0][2] - 1
+            del enemy[0][2]
+            enemy[0].append(u)
+            if enemy[0][2] == 0:
+                del enemy[0]
+                page = 4
+            del bullet[2][0]
+            del bullet[2][0]
+            bullet[2].append(0)
+            bullet[2].append(0)
         else:
             fill(0, 255, 0)
         
         rect(enemy[0][0], enemy[0][1], 50, 50)
+        
+        #health bar of enemy
+        if 40 / 3 * u / 40 * 100 <= 66:
+            healthBar = 40 / 3 * u
+        elif 40 / 3 * 1 / 40 * 100 <= 33:
+            healthBar = 40 / 3 * u
+            
+        fill(0, 255, 0)   
+        rectMode(CORNER)
+        rect(enemy[0][0] - 21, enemy[0][1] - 35, healthBar, 5)
     except:
         pass
   
@@ -265,54 +326,48 @@ def game():
             enemy[0][1] += 0.5
             if enemy[0][0] > 750:
                 z = False
+                
         if not z:
             enemy[0][0] -= 2
             enemy[0][1] += 0.5
             if enemy[0][0] < 50:
                 z = True
+                
         if enemy[0][1] >= 700:
             enemy[0][1] = -25
             z = True
         
         #bullet
-        if bulletTimer >= 75:
-            bulletTimer = 0
-            
-        if bulletTimer % 75 == 0:
+        bulletTimerEnemy += 1
+        if bulletTimerEnemy % 90 == 0:
             del enemyBullet[0][0]
             del enemyBullet[0][0]
             enemyBullet[0].append(enemy[0][0])
             enemyBullet[0].append(enemy[0][1])
             
         fill(128, 0, 128)
-        ellipse(enemyBullet[0][0], enemyBullet[0][1], 10, 10)
+        rectMode(CENTER)
+        rect(enemyBullet[0][0], enemyBullet[0][1], 10, 10)
         enemyBullet[0][1] += 10
-    
-    #health bar of enemy
-        if 40 / 3 * u / 40 * 100 <= 66.6666666666666:
-            healthBar = 40 / 3 * u
-        elif 40 / 3 * 1 / 40 * 100 <= 33.33333333333333:
-            healthBar = 40 / 3 * u
         
-        fill(0, 255, 0)    
-        rectMode(CORNER)
-        rect(enemy[0][0] - 22.5, enemy[0][1] - 35, healthBar, 5)
-        
+        if bulletTimerEnemy >= 75:
+            bulletTimerEnemy = 0
     except:
         pass
         
 def death():
     global x, y, enemy, playerlives, page
     try:
-        if (enemy[0][0] >= x - 25 and enemy[0][0] <= x + 25 and 
-            enemy[0][1] >= y - 25 and enemy[0][1] <= y + 25):
+        if (enemy[0][0] >= x - 45 and enemy[0][0] <= x + 45 and 
+            enemy[0][1] >= y - 45 and enemy[0][1] <= y + 45):
             playerlives = 0
             page = 3
-        if (x - 25 <= enemyBullet[0][0] - 10 and x + 25 >= enemyBullet[0][0] + 10 and 
-            y - 25 <= enemyBullet[0][1] - 10 and y + 25 >= enemyBullet[0][1] + 10):
+            
+        if (x - 35 <= enemyBullet[0][0] - 10 and x + 35 >= enemyBullet[0][0] + 10 and 
+            y - 35 <= enemyBullet[0][1] - 10 and y + 35 >= enemyBullet[0][1] + 10):
             playerlives -= 1
     except:
-       pass  
+       pass 
     
     if playerlives == 0:
             page = 3
@@ -320,7 +375,7 @@ def death():
 def reset():
     global x, y, playerlives, bullet, enemy, enemyBullet, z, bulletTimer, healthBar, page
     x, y, playerlives = 400, 550, 3
-    bullet = [[0, 0]] #x-coordinate, y-coordinate of player/bullet, lives
+    bullet = [[0, 0], [0, 0], [0, 0]] #x-coordinate, y-coordinate of player/bullet, lives
     enemy = [[400, 100, 3]] #x-coordinate, y-coordinate, lives/17ms hit detection, bullet of enemies
     enemyBullet = [[400, 100]] #x-coordinate 
     z = True
@@ -329,9 +384,10 @@ def reset():
 
 def framecount():
     global enemy
+    noStroke()
     rectMode(CORNER)
     fill(0, 0, 0, 150)
-    rect(0, 0, 45, 15)
+    rect(0, 0, 42, 15)
     a = int(frameRate // 1)
     textSize(12)
     textAlign(LEFT, TOP)
@@ -341,7 +397,7 @@ def framecount():
     else:
         fill(0, 255, 0)
         
-    text('fps:{}'.format(a), 0, 0)
+    text('fps:{}'.format(a), 2, 0)
     
 def keyPressed():
     global keys_pressed
@@ -350,10 +406,10 @@ def keyPressed():
 def keyReleased():
     global keys_pressed
     keys_pressed[keyCode] = False
-
-def mousePressed():
-    global bullet, x, y
-    del bullet[0][0]
-    del bullet[0][0]   
-    bullet[0].append(x)
-    bullet[0].append(y)  
+    
+def mousePressed(): #probably won't work
+    loop() 
+    
+def mouseReleased():
+    global bulletTimerPlayer
+    bulletTimerPlayer = 0
