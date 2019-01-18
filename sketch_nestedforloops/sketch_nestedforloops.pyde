@@ -12,6 +12,7 @@ u = enemy[0][2]
 d = enemy[1][2]
 e = enemy[2][2]
 clickTimer = True
+timer = 0
 a = 0
 c = 0
 
@@ -27,9 +28,10 @@ def draw():
     framecount()
     
 def game():
-    global newlist, x, y, bullet, enemy, z, enemyBullet, bulletTimerPlayer, healthBar, page, u, bulletTimerEnemy, clickTimer, a, d, e, c, i 
+    global timer, newlist, x, y, bullet, enemy, z, enemyBullet, bulletTimerPlayer, healthBar, page, u, bulletTimerEnemy, clickTimer, a, d, e, c, i 
     background(255)
     stroke(1)
+    timer += 1
     
     #main player
     rectMode(CENTER)
@@ -62,13 +64,19 @@ def game():
     
     try:
         if mousePressed and clickTimer:
-            fill(0, 0, 255)
-            bullet.append([x, y])
-            
+            if timer > 20:
+                bullet.append([x, y])
+                
         for i in range(len(bullet)):
+            fill(0, 0, 255)
             rect(bullet[i][0], bullet[i][1], 10, 10)
-            bullet[i][1] -= random(0, 20)
+            bullet[i][1] -= 15
+    
+        if timer > 20.5:
+            timer = 0
+            
         print(bullet)
+        
             
     except:
         pass
@@ -424,9 +432,11 @@ def mouseReleased():
     bulletTimerPlayer = 0
     clickTimer = False
     a = 0
-    
+
     for h in range(len(bullet)):
         if bullet[len(bullet) - 1][1] < 0:
             del bullet[0]
+    
+
 
     
