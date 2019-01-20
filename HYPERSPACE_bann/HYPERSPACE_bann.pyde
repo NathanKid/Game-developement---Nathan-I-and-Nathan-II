@@ -1,17 +1,22 @@
 keys_pressed = [False for key_code in range(256)]
-x, y, playerlives = 400, 550, 3
-bullet = [[0, 0], [0, 0], [0, 0]]#x-coordinate, y-coordinate of player/bullet, lives
-enemy = [[400, 100, 3], [300, 100, 3], [500, 100, 3]] #x-coordinate, y-coordinate, lives/17ms hit detection, bullet of enemies
-enemyBullet = [[400, 200], [300, 100], [500, 400]] #x-coordinate 
-z = True
-b = True
-c = True
-bulletTimerPlayer = 0
+x, y, playerlives = 400, 550, 1
+bullet = []
+enemy = [[400, 100, 3], [300, 100, 3], [500, 100, 3]] #x-coordinate, y-coordinate, lives
+enemyBullet = [[400, 200], [300, 100], [500, 400]] #x-coordinate, y-coordinate of enem bullets
+movementBoolean = True
+movementBoolean2 = True
+movementBoolean3 = True
+bulletTimerPlayer = True
 bulletTimerEnemy = 0
 healthBar = 40
 page = 0
 clickTimer = True
-a = 0
+timer = 0
+countTimer = 0
+score = 0
+kills = []
+combo = 0
+l = 0
 
 button_x = 175
 button_y = 350
@@ -26,41 +31,44 @@ button3_y = 600
 button3_width = 450
 button3_height = 60
 
-
 def setup():
+    global bullet_sprite, ebullet_sprite, player_sprite, enemy1
     size(800, 700)
     frameRate(60)
     smooth()
-    cursor(ARROW)
-    global bullet_sprite, ebullet_sprite, player_sprite, enemy1
     bullet_sprite = loadImage("Bullet.png")
     ebullet_sprite = loadImage("Enemy Bullet.png")
     player_sprite = loadImage("Plane.png")
     enemy1 = loadImage("Enemy.png")
+    
 def draw():
-    global page, button_x, button_y, button_width, button_height, button2_x, button2_y, button2_width, button2_height, button3_x, button3_y, button3_width, button3_height, playerlives, bulletTimerPlayer, bulletTimerEnemy, clickTimer
+    global timer, page, button_x, button_y, button_width, button_height, button2_x
+    global button2_y, button2_width, button2_height, button3_x, button3_y
+    global button3_width, button3_height, playerlives, bulletTimerPlayer
+    global bulletTimerEnemy, clickTimer, countTimer, score, combo, kills, u, d, e, l
     rectMode(CORNER)
     noStroke()
     textAlign(LEFT)
+    
     if page == 0:
+        cursor()
+        reset()
         titlefont = createFont("Orbitron.ttf", 40)
         buttonfont = createFont("Orbitron.ttf", 60)
         background(0)
         textFont(titlefont)
         textSize(width/9)
-        fill(255)
+        fill(0, 255, 0)
         text("HYPERSPACE", width/18, height/3)
         
         #play button 
         if (mouseX > button_x and mouseX < button_x + button_width and 
-                mouseY > button_y and mouseY < button_y + button_height and 
-                    mousePressed):
-            page = 1
-            
+            mouseY > button_y and mouseY < button_y + button_height and 
+            mousePressed):
+            page = 1    
         elif (mouseX > button_x and mouseX < button_x + button_width 
-                  and mouseY > button_y and mouseY < button_y + button_height):  
+            and mouseY > button_y and mouseY < button_y + button_height):  
             fill(100, 150, 177) 
-            
         else:
             fill(5, 70, 177)
             
@@ -75,7 +83,7 @@ def draw():
                     mousePressed):
             page = 2
         elif (mouseX > button2_x and mouseX < button2_x + button2_width and 
-                  mouseY > button2_y and mouseY < button2_y + button2_height): 
+            mouseY > button2_y and mouseY < button2_y + button2_height): 
             fill(100, 150, 177)
         else:
             fill(5, 70, 177)
@@ -86,26 +94,29 @@ def draw():
         text("CONTROLS", width/3.9,height/1.225)
     
     if page == 1: #Game
+        noCursor()
         game()
         framecount()
         death()
         
     if page == 2: #Controls
-        background(0, 0, 0)
+        cursor()
+        background(0)
         titlefont2 = createFont("Orbitron.ttf", 40)
         buttonfont2 = createFont("Orbitron.ttf", 50)
         textfont = createFont("Orbitron.ttf", 50)
         descriptionfont = createFont("Orbitron.ttf", 25)
         textFont(titlefont2)
         textSize(width/9)
+        fill(255, 0, 0)
         text("CONTROLS", width/7, height/6)
         textFont(textfont)
         text("W A S D - Movement", width/16, height/3.5)
         text("LMB - To Fire Cannons", width/16, height/2.5)
-        text("RMB - To Fire Rockets", width/16, height/1.9)
+        text("Click P to pause the game", width/16, height/1.9)
         text("L SHIFT - To Open Sheild", width/16, height/1.4)
         textFont(descriptionfont)
-        text("Rockets do Splash damage to nearby ships", width/16, height/1.7)        
+        text("Click LMB to unpause", width/16, height/1.7)        
         text("Shields last 5 seconds and can absorb 5 hits", width/16, height/1.3)
         text("before turning off. Recharging takes 30 seconds", width/16, height/1.22)
         
@@ -113,8 +124,8 @@ def draw():
             mouseY > button3_y and mouseY < button3_y + button3_height and 
             mousePressed):
             page = 0
-        elif (mouseX > button3_x and mouseX < button3_x + button3_width and 
-                  mouseY > button3_y and mouseY < button3_y + button3_height):  
+        elif (mouseX > button3_x and mouseX < button3_x + button3_width and
+            mouseY > button3_y and mouseY < button3_y + button3_height):  
             fill(100,150,177)
         else:
             fill(5,70,177)
@@ -125,11 +136,8 @@ def draw():
         text("BACK TO MENU", width/4.4, height/1.08)
         
     if page == 3: #Player Death
-        reset()
-        score = 0
-        kills = 0
-        combo = 0
-        background(0, 0, 0)
+        cursor()
+        background(0)
         titlefont3 = createFont("Orbitron.ttf", 70)
         buttonfont3 = createFont("Orbitron.ttf", 50)
         statsfont = createFont("Orbitron.ttf", 70)
@@ -138,16 +146,12 @@ def draw():
         fill(255,0,0)
         text("<< GAME OVER >>", width/11, height/5)
         textFont(statsfont)
-        fill(255,0,0)
         text('SCORE: {}'.format(score) , width/16, height/3)
         textFont(statsfont)
-        fill(255,0,0)
         text('KILLS: {}'.format(kills) , width/16, height/2.2)
         textFont(statsfont)
-        fill(255,0,0)
         text('LIVES LEFT: 0', width/16, height/1.7)
         textFont(statsfont)
-        fill(255, 0, 0)
         text('END COMBO: {}'.format(combo) , width/16, height/1.35)
         
         if (mouseX > button3_x and mouseX < button3_x + button3_width and 
@@ -166,11 +170,8 @@ def draw():
         text("BACK TO MENU", width/4.4, height/1.08)
         
     if page == 4: 
-        reset()
-        score = 0
-        kills = 0
-        combo = 0
-        background(0,0,0)
+        cursor()
+        background(0)
         titlefont4 = createFont("Orbitron.ttf", 70)
         buttonfont4 = createFont("Orbitron.ttf", 50)
         statsfont2 = createFont("Orbitron.ttf", 70)
@@ -187,16 +188,15 @@ def draw():
         text('LIVES LEFT: {}'.format(playerlives) , width/16, height/1.7)
         textFont(statsfont2)
         text('END COMBO: {}'.format(combo) , width/16, height/1.35)
-        button3_x = 175
-        button3_y = 600
-        button3_width = 450
-        button3_height = 60
-        if (mouseX > button3_x and mouseX < button3_x + button3_width and mouseY > button3_y and mouseY < button3_y + button3_height and mousePressed):
+        if (mouseX > button3_x and mouseX < button3_x + button3_width and
+            mouseY > button3_y and mouseY < button3_y + button3_height and mousePressed):
             page = 0
-        elif (mouseX > button3_x and mouseX < button3_x + button3_width and mouseY > button3_y and mouseY < button3_y + button3_height):  
+        elif (mouseX > button3_x and mouseX < button3_x + button3_width and
+            mouseY > button3_y and mouseY < button3_y + button3_height):  
             fill(100,150,177)
         else:
             fill(5,70,177)
+            
         rect(button3_x, button3_y, button3_width, button3_height, 10)
         textFont(buttonfont4)
         fill(255)
@@ -204,12 +204,97 @@ def draw():
 
 
 def game():
-    global x, y, bullet, enemy, z, b, c, enemyBullet, bulletTimerPlayer, healthBar, page, u, bulletTimerEnemy, clickTimer, a, d, e, bullet_sprite, ebullet_sprite, player_sprite, enemy1
-    imageMode(CENTER)
+    global movementBoolean, movementBoolean2, movementBoolean3, pause, timer, x, y
+    global bullet, enemy, enemyBullet, bulletTimerPlayer, healthBar, page
+    global bulletTimerEnemy, clickTimer, countTimer, score, kills, combo, u, d, e
+
     background(0)
     stroke(1)
+    timer += 1
+                
+    #bullets
+    if not clickTimer:
+        countTimer += 1 
+        if countTimer >= 25:
+            clickTimer = True
     
+    if mousePressed and clickTimer:
+        if timer > 20: 
+            bullet.append([x, y])
+    
+    try:
+        for i in range(len(bullet)):
+            fill(0, 0, 255)
+            image(bullet_sprite, bullet[i][0], bullet[i][1] - 25)
+            bullet[i][1] -= 15
+            for k in range(len(bullet)):
+                try:
+                    if (enemy[0][0] - 25 <= bullet[k][0] <= enemy[0][0] + 25 and 
+                    bullet[k][1] >= enemy[0][1] - 25 and 
+                    bullet[k][1] <= enemy[0][1] + 25):
+                        del bullet[k]
+                        countTimer = 25
+                        fill(255, 0, 0)
+                        u = enemy[0][2] - 1
+                        del enemy[0][2]
+                        enemy[0].append(u)
+                        if enemy[0][2] == 0:
+                            kills.append(1)
+                            del enemy[0]
+
+                    if (enemy[1][0] - 25 <= bullet[k][0] <= enemy[1][0] + 25 and 
+                    bullet[k][1] >= enemy[1][1] - 25 and 
+                    bullet[k][1] <= enemy[1][1] + 25):
+                        fill(255, 0, 0)
+                        del bullet[k]
+                        countTimer = 25
+                        d = enemy[1][2] - 1
+                        del enemy[1][2]
+                        enemy[1].append(d)
+                        if enemy[1][2] == 0:
+                            kills.append(1)
+                            del enemy[1]        
+                            
+                    if (enemy[2][0] - 25 <= bullet[k][0] <= enemy[2][0] + 25 and 
+                    bullet[k][1] >= enemy[2][1] - 25 and 
+                    bullet[k][1] <= enemy[2][1] + 25):
+                        del bullet[k]
+                        countTimer = 25
+                        fill(255, 0, 0)
+                        e = enemy[2][2] - 1
+                        del enemy[2][2]
+                        enemy[2].append(e)
+                        if enemy[2][2] == 0:
+                            kills.append(1)
+                            del enemy[2]
+                except:
+                    pass
+    except:
+        pass
+
+    try:
+        fill(0, 255, 0)
+        image(enemy1, enemy[0][0], enemy[0][1])
+        image(enemy1, enemy[1][0], enemy[1][1])
+        image(enemy1, enemy[2][0], enemy[2][1])
+    except:
+        pass
+    
+    try:
+        for h in range(len(bullet)):
+            if bullet[len(bullet) - 1][1] < 0:
+                del bullet[h]
+                bulletTimerPlayer = True
+    except:
+        pass
+                
+    if timer > 20.5:
+        timer = 0
+        
     #main player
+    imageMode(CENTER)
+    rectMode(CENTER)
+    fill(255, 0, 0)
     image(player_sprite, x, y)
     
     #movement
@@ -230,194 +315,8 @@ def game():
         if x >= 775:
             x = 775
         
-    if not clickTimer:
-        a += 1 
-        if a >= 25:
-            clickTimer = True        
-    #bullets
-    if mousePressed and clickTimer:
-        bulletTimerPlayer += 1 
-        
-    if bulletTimerPlayer == 1:
-        del bullet[0][0]
-        del bullet[0][0]  
-        bullet[0].append(x)
-        bullet[0].append(y) 
-            
-    if bulletTimerPlayer == 21:
-        del bullet[1][0]
-        del bullet[1][0]
-        bullet[1].append(x)
-        bullet[1].append(y)
-
-    if bulletTimerPlayer == 41: 
-        del bullet[2][0]
-        del bullet[2][0]
-        bullet[2].append(x)
-        bullet[2].append(y)
-        
-    if bulletTimerPlayer >= 71:
-        bulletTimerPlayer = 0
-
-
-    bullet[0][1] -= 20
-    bullet[1][1] -= 20
-    bullet[2][1] -= 20
-    image(bullet_sprite, bullet[0][0], bullet[0][1])
-    image(bullet_sprite, bullet[1][0], bullet[1][1])
-    image(bullet_sprite, bullet[2][0], bullet[2][1])
-        
-    #enemy death
     try:
-        #enemy hit
-        if (enemy[0][0] - 25 <= bullet[0][0] <= enemy[0][0] + 25 and 
-            bullet[0][1] >= enemy[0][1] - 25 and 
-            bullet[0][1] <= enemy[0][1] + 25):
-            fill(255, 0, 0)
-            u = enemy[0][2] - 1
-            del enemy[0][2]
-            enemy[0].append(u)
-            if enemy[0][2] == 0:
-                del enemy[0]
-            del bullet[0][0]
-            del bullet[0][0]
-            bullet[0].append(0)
-            bullet[0].append(0) 
-            
-        elif (enemy[0][0] - 25 <= bullet[1][0] <= enemy[0][0] + 25 and
-            bullet[1][1] >= enemy[0][1] - 25 and 
-            bullet[1][1] <= enemy[0][1] + 25):
-            fill(255, 0, 0)
-            u = enemy[0][2] - 1
-            del enemy[0][2]
-            enemy[0].append(u)
-            if enemy[0][2] == 0:
-                del enemy[0]
-            del bullet[1][0]
-            del bullet[1][0]
-            bullet[1].append(0)
-            bullet[1].append(0)
-            
-        elif (enemy[0][0] - 25 <= bullet[2][0] <= enemy[0][0] + 25 and 
-            bullet[2][1] >= enemy[0][1] - 25 and 
-            bullet[2][1] <= enemy[0][1] + 25):
-            fill(255, 0, 0)
-            u = enemy[0][2] - 1
-            del enemy[0][2]
-            enemy[0].append(u)
-            if enemy[0][2] == 0:
-                del enemy[0]
-            del bullet[2][0]
-            del bullet[2][0]
-            bullet[2].append(0)
-            bullet[2].append(0)
-        else:
-            fill(0, 255, 0)
-            
-        image(enemy1, enemy[0][0], enemy[0][1])
-    except:
-        pass
-    
-    try:    #next
-        if (enemy[1][0] - 25 <= bullet[0][0] <= enemy[1][0] + 25 and 
-            bullet[0][1] >= enemy[1][1] - 25 and 
-            bullet[0][1] <= enemy[1][1] + 25):
-            fill(255, 0, 0)
-            d = enemy[1][2] - 1
-            del enemy[1][2]
-            enemy[1].append(d)
-            if enemy[1][2] == 0:
-                del enemy[1]
-            del bullet[0][0]
-            del bullet[0][0]
-            bullet[0].append(0)
-            bullet[0].append(0) 
-            
-        elif (enemy[1][0] - 25 <= bullet[1][0] <= enemy[1][0] + 25 and
-            bullet[1][1] >= enemy[1][1] - 25 and 
-            bullet[1][1] <= enemy[1][1] + 25):
-            fill(255, 0, 0)
-            d = enemy[1][2] - 1
-            del enemy[1][2]
-            enemy[1].append(d)
-            if enemy[1][2] == 0:
-                del enemy[1]
-            del bullet[1][0]
-            del bullet[1][0]
-            bullet[1].append(0)
-            bullet[1].append(0)
-            
-        elif (enemy[1][0] - 25 <= bullet[2][0] <= enemy[1][0] + 25 and 
-            bullet[2][1] >= enemy[1][1] - 25 and 
-            bullet[2][1] <= enemy[1][1] + 25):
-            fill(255, 0, 0)
-            d = enemy[1][2] - 1
-            del enemy[1][2]
-            enemy[1].append(d)
-            if enemy[1][2] == 0:
-                del enemy[1]
-            del bullet[2][0]
-            del bullet[2][0]
-            bullet[2].append(0)
-            bullet[2].append(0)
-        else:
-            fill(0, 255, 0)
-        
-        image(enemy1, enemy[1][0], enemy[1][1])
-    except:
-        pass
-
-    try: #after
-        #enemy hit
-        if (enemy[2][0] - 25 <= bullet[0][0] <= enemy[2][0] + 25 and 
-            bullet[0][1] >= enemy[2][1] - 25 and 
-            bullet[0][1] <= enemy[2][1] + 25):
-            fill(255, 0, 0)
-            e = enemy[2][2] - 1
-            del enemy[2][2]
-            enemy[2].append(e)
-            if enemy[2][2] == 0:
-                del enemy[2]
-            del bullet[0][0]
-            del bullet[0][0]
-            bullet[0].append(0)
-            bullet[0].append(0) 
-            
-        elif (enemy[2][0] - 25 <= bullet[1][0] <= enemy[2][0] + 25 and
-            bullet[1][1] >= enemy[2][1] - 25 and 
-            bullet[1][1] <= enemy[2][1] + 25):
-            fill(255, 0, 0)
-            e = enemy[2][2] - 1
-            del enemy[2][2]
-            enemy[2].append(e)
-            if enemy[2][2] == 0:
-                del enemy[2]
-            del bullet[1][0]
-            del bullet[1][0]
-            bullet[1].append(0)
-            bullet[1].append(0)
-            
-        elif (enemy[2][0] - 25 <= bullet[2][0] <= enemy[2][0] + 25 and 
-            bullet[2][1] >= enemy[2][1] - 25 and 
-            bullet[2][1] <= enemy[2][1] + 25):
-            fill(255, 0, 0)
-            e = enemy[2][2] - 1
-            del enemy[2][2]
-            enemy[2].append(e)
-            if enemy[2][2] == 0:
-                del enemy[2]
-            del bullet[2][0]
-            del bullet[2][0]
-            bullet[2].append(0)
-            bullet[2].append(0)
-        else:
-            fill(0, 255, 0)
-            
-        image(enemy1, enemy[2][0], enemy[2][1])
-    except:
-        pass
-        
-    try:
+        fill(0, 255,  0)
         rectMode(CORNER)
         if 40 / 3 * enemy[0][2] / 40 * 100 <= 66:
             healthBar = 40 / 3 * enemy[0][2]
@@ -427,13 +326,13 @@ def game():
         rect(enemy[0][0] - 21, enemy[0][1] - 35, healthBar, 5)
     except:
         pass
-    
+        
     try:
         if 40 / 3 * enemy[1][2] / 40 * 100 <= 66:
             healthBar = 40 / 3 * enemy[1][2]
         elif 40 / 3 * 1 / 40 * 100 <= 33:
             healthBar = 40 / 3 * enemy[1][2]
-            
+        
         rect(enemy[1][0] - 21, enemy[1][1] - 35, healthBar, 5)
     except:
         pass
@@ -441,62 +340,63 @@ def game():
     try:
         if 40 / 3 * enemy[2][2] / 40 * 100 <= 66:
             healthBar = 40 / 3 * enemy[2][2]
-        elif 40 / 3 * e / 40 * 100 <= 33:
+        elif 40 / 3 * 1 / 40 * 100 <= 33:
             healthBar = 40 / 3 * enemy[2][2]
-    
+            
         rect(enemy[2][0] - 21, enemy[2][1] - 35, healthBar, 5)
     except:
         pass
     
     #enemy desinated movement
     try:     
-        if z:
-            enemy[0][0] += 20
-            enemy[0][1] += 20
+        if movementBoolean:
+            enemy[0][0] += 4
+            enemy[0][1] += 4
             if enemy[0][0] > 750:
-                z = False    
-        if not z:
-            enemy[0][0] -= 5
-            enemy[0][1] += 5
+                movementBoolean = False    
+        if not movementBoolean:
+            enemy[0][0] -= 4
+            enemy[0][1] += 4
             if enemy[0][0] < 50:
-                z = True
+                movementBoolean = True
                 
         if enemy[0][1] >= 700:
-            enemy[0][1] = -25
+            enemy[0][1] = - 25
     except:
         pass
         
     try: #next
-        if b:
-            enemy[1][0] += 3
-            enemy[1][1] += 2
+        if movementBoolean2:
+            enemy[1][0] += 4
+            enemy[1][1] += 4
             if enemy[1][0] > 750:
-                b = False  
-        if not b:
-            enemy[1][0] -= 1
-            enemy[1][1] += 2
+                movementBoolean2 = False    
+        if not movementBoolean2:
+            enemy[1][0] -= 4
+            enemy[1][1] += 4
             if enemy[1][0] < 50:
-                b = True
+                movementBoolean2 = True
                 
         if enemy[1][1] >= 700:
-            enemy[1][1] = -25
+            enemy[1][1] = - 25
     except:
         pass
         
     try: #after  
-        if c:
-            enemy[2][0] += 5
-            enemy[2][1] += 2
+        if movementBoolean3:
+            enemy[2][0] += 4
+            enemy[2][1] += 4
             if enemy[2][0] > 750:
-                c = False   
-        if not c:
+                movementBoolean3 = False    
+                
+        if not movementBoolean3:
             enemy[2][0] -= 4
-            enemy[2][1] += 6
+            enemy[2][1] += 4
             if enemy[2][0] < 50:
-                c = True
+                movementBoolean3 = True
                 
         if enemy[2][1] >= 700:
-            enemy[2][1] = -25
+            enemy[2][1] = - 25
     except:
         pass
     
@@ -509,6 +409,8 @@ def game():
             enemyBullet[0].append(enemy[0][0])
             enemyBullet[0].append(enemy[0][1])
             
+        fill(128, 0, 128)
+        rectMode(CENTER)
         image(ebullet_sprite, enemyBullet[0][0], enemyBullet[0][1])
         enemyBullet[0][1] += 10
     except:
@@ -544,90 +446,104 @@ def game():
     except:
         pass
         
-        if bulletTimerEnemy >= 85:
-            bulletTimerEnemy = 0
-    
-    print(enemy)
+    score += 100
         
+    if bulletTimerEnemy >= 90:
+        bulletTimerEnemy = 0
+    
+    if enemy == []:
+        page = 4
+        
+            
 def death():
     global x, y, enemy, playerlives, page
     try:
         if (enemy[0][0] >= x - 45 and enemy[0][0] <= x + 45 and 
             enemy[0][1] >= y - 45 and enemy[0][1] <= y + 45):
-            playerlives = 0
+            page = 3
         
         if (enemy[1][0] >= x - 45 and enemy[1][0] <= x + 45 and 
             enemy[1][1] >= y - 45 and enemy[1][1] <= y + 45):
-            playerlives = 0
+            page = 3
             
         if (enemy[2][0] >= x - 45 and enemy[2][0] <= x + 45 and 
             enemy[2][1] >= y - 45 and enemy[2][1] <= y + 45):
-            playerlives = 0
+            page = 3
             
         if (x - 35 <= enemyBullet[0][0] - 10 and x + 35 >= enemyBullet[0][0] + 10 and 
             y - 35 <= enemyBullet[0][1] - 10 and y + 35 >= enemyBullet[0][1] + 10):
-            playerlives = 0
+            page = 3
             
         if (x - 35 <= enemyBullet[1][0] - 10 and x + 35 >= enemyBullet[1][0] + 10 and 
             y - 35 <= enemyBullet[1][1] - 10 and y + 35 >= enemyBullet[1][1] + 10):
-            playerlives = 0
+            page = 3
             
         if (x - 35 <= enemyBullet[2][0] - 10 and x + 35 >= enemyBullet[2][0] + 10 and 
             y - 35 <= enemyBullet[2][1] - 10 and y + 35 >= enemyBullet[2][1] + 10):
-            playerlives = 0
-            
+            page = 3
     except:
        pass 
-       
-    if playerlives == 0:
-            page = 3
-    
-    if enemy == []:
-        page = 4
-
 
 def reset():
-    global x, y, playerlives, bullet, enemy, enemyBullet, z, bulletTimerEnemy, bulletPlayerTimer, healthBar, page, u, d, e, a
-    x, y, playerlives = 400, 550, 3
-    bullet = [[0, 0], [0, 0], [0, 0]]#x-coordinate, y-coordinate of player/bullet, lives
-    enemy = [[400, 100, 3], [300, 100, 3], [500, 100, 3]] #x-coordinate, y-coordinate, lives/17ms hit detection, bullet of enemies
-    enemyBullet = [[400, 100], [300, 100], [500, 100]] #x-coordinate 
+    global x, y, playerlives, enemy, enemyBullet, bulletTimerEnemy, bulletPlayerTimer
+    global healthBar, page, countTimer, score, kills, combo, bullet
+    keys_pressed = [False for key_code in range(256)]
+    x, y, playerlives = 400, 550, 1
+    enemy = [[400, 100, 3], [300, 100, 3], [500, 100, 3]] 
+    enemyBullet = [[400, 200], [300, 100], [500, 400]] 
     z = True
-    bulletTimerPlayer = 0
+    bulletTimerPlayer = True
+    clickTimer = True
     bulletTimerEnemy = 0
     healthBar = 40
-    u = enemy[0][2]
-    d = enemy[1][2]
-    e = enemy[2][2]
-    clickTimer = True
-    a = 0
+    countTimer = 0
+    score = 0
+    combo = 0
+    kills = []
+    bullet = []
+
 def framecount():
     global enemy
-    noStroke()
-    rectMode(CORNER)
-    fill(0, 0, 0, 150)
-    rect(0, 0, 42, 15)
-    a = int(frameRate // 1)
     textSize(12)
     textAlign(LEFT, TOP)
     
-    if a <= 30:
+    if int(frameRate // 1) <= 30:
         fill(255, 0, 0)
     else:
         fill(0, 255, 0)
         
-    text('fps:{}'.format(a), 2, 0)
+    text('fps:{}'.format(int(frameRate // 1)), 2, 0)
     
 def keyPressed():
     global keys_pressed
     keys_pressed[keyCode] = True
     
+    if keys_pressed[80]: # p
+        rectMode(CENTER)
+        fill(0, 0, 0, 210)
+        rect(400, 350, 1000, 1000)
+        textAlign(CENTER)
+        textSize(100)
+        fill(0, 255, 0)
+        text('Pause', 400, 350)
+        textAlign(CENTER, TOP)
+        textSize(50)
+        fill(255)
+        text('Click LMB to continue', 400, 400)
+        noLoop()
+        
 def keyReleased():
     global keys_pressed
     keys_pressed[keyCode] = False
     
+def mousePressed():
+    loop()
+    global bullet, clickTimer
+    if clickTimer == True:
+        bullet.append([x, y])
+        clickTimer = False
+    
 def mouseReleased():
-    global bulletTimerPlayer, clickTimer, a
-    bulletTimerPlayer = 0
+    global clickTimer, countTimer
     clickTimer = False
-    a = 0
+    countTimer = 0
