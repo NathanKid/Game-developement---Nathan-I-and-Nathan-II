@@ -250,6 +250,7 @@ def game():
                         if enemy[0][2] == 0:
                             kills.append(1)
                             del enemy[0]
+                            
                     
                     #enemy 2
                     if (enemy[1][0] - 25 <= bullet[k][0] <= enemy[1][0] + 25 and 
@@ -324,8 +325,7 @@ def game():
         x += 6
         if x >= 775:
             x = 775
-     
-    
+
     try:
         #enemy 1 healthbar
         fill(0, 255,  0)
@@ -478,33 +478,37 @@ def game():
 #when player dies
 def death():
     global x, y, enemy, playerlives, page
-    try:
+    
+    try:    
         if (enemy[0][0] >= x - 45 and enemy[0][0] <= x + 45 and 
             enemy[0][1] >= y - 45 and enemy[0][1] <= y + 45):
             page = 3
-        
+            
         if (enemy[1][0] >= x - 45 and enemy[1][0] <= x + 45 and 
             enemy[1][1] >= y - 45 and enemy[1][1] <= y + 45):
             page = 3
-            
+                
         if (enemy[2][0] >= x - 45 and enemy[2][0] <= x + 45 and 
             enemy[2][1] >= y - 45 and enemy[2][1] <= y + 45):
             page = 3
-            
+    except:
+        pass
+        
+    try:    
         if (x - 35 <= enemyBullet[0][0] - 10 and x + 35 >= enemyBullet[0][0] + 10 and 
             y - 35 <= enemyBullet[0][1] - 10 and y + 35 >= enemyBullet[0][1] + 10):
             page = 3
-            
+                
         if (x - 35 <= enemyBullet[1][0] - 10 and x + 35 >= enemyBullet[1][0] + 10 and 
             y - 35 <= enemyBullet[1][1] - 10 and y + 35 >= enemyBullet[1][1] + 10):
             page = 3
-            
+                
         if (x - 35 <= enemyBullet[2][0] - 10 and x + 35 >= enemyBullet[2][0] + 10 and 
             y - 35 <= enemyBullet[2][1] - 10 and y + 35 >= enemyBullet[2][1] + 10):
             page = 3
-        
     except:
-       pass 
+        pass
+        
 
 #Resets all variables when the game is played again
 def reset():
