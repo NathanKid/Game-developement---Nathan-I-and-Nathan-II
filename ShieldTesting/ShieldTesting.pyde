@@ -1,26 +1,25 @@
 keys_pressed = [False for key_code in range(256)]
-x, y, playerlives = 400, 550, 1
+x, y, player_lives = 400, 550, 1
 bullet = []
 enemy = [[400, 100, 3], [300, 100, 3], [500, 100, 3]] #x-coordinate, y-coordinate, lives
-enemyBullet = [[400, 200], [300, 100], [500, 400]] #x-coordinate, y-coordinate of enem bullets
-movementBoolean = True
-movementBoolean2 = True
-movementBoolean3 = True
-bulletTimerPlayer = True
-bulletTimerEnemy = 0
-healthBar = 40
+enemy_bullet = [[400, 200], [300, 100], [500, 400]] #x-coordinate, y-coordinate of enem bullets
+movement_boolean = True
+movement_boolean2 = True
+movement_boolean3 = True
+bullet_timer_player = True
+bullet_timer_enemy = 0
+health_bar = 40
 page = 0
-clickTimer = True
+click_timer = True
 timer = 0
-countTimer = 0
+count_timer = 0
 score = 0
 kills = []
 combo = 0
-shieldTimer = 0
-shieldCooldown = 0
-shieldStatus = False
-shieldCapacity = 2
-rechargeStatus = False
+shield_timer = 0
+shield_cooldown = 0
+shield_status = False
+recharge_status = False
 
 button_x = 175
 button_y = 350
@@ -50,9 +49,9 @@ def setup():
 def draw():
     global timer, page, button_x, button_y, button_width, button_height, button2_x
     global button2_y, button2_width, button2_height, button3_x, button3_y
-    global button3_width, button3_height, playerlives, bulletTimerPlayer
-    global bulletTimerEnemy, clickTimer, countTimer, score, combo, kills
-    global shieldTimer, shieldCooldown, shieldStatus, shieldedSprite, rechargeStatus
+    global button3_width, button3_height, player_lives, bullet_timer_player
+    global bullet_timer_enemy, click_timer, count_timer, score, combo, kills
+    global shield_timer, shield_cooldown, shield_status, shieldedSprite, recharge_status
     rectMode(CORNER)
     noStroke()
     textAlign(LEFT)
@@ -194,7 +193,7 @@ def draw():
         textFont(statsfont2)
         text('KILLS: {}'.format(kills) , width/16, height/2.2)
         textFont(statsfont2)
-        text('LIVES LEFT: {}'.format(playerlives) , width/16, height/1.7)
+        text('LIVES LEFT: {}'.format(player_lives) , width/16, height/1.7)
         textFont(statsfont2)
         text('END COMBO: {}'.format(combo) , width/16, height/1.35)
         if (mouseX > button3_x and mouseX < button3_x + button3_width and
@@ -213,10 +212,10 @@ def draw():
 
 
 def game():
-    global movementBoolean, movementBoolean2, movementBoolean3, pause, timer, x, y
-    global bullet, enemy, enemyBullet, bulletTimerPlayer, healthBar, page
-    global bulletTimerEnemy, clickTimer, countTimer, score, kills, combo
-    global shieldTimer, shieldCooldown, shieldStatus, shieldedSprite, rechargeStatus 
+    global movement_boolean, movement_boolean2, movement_boolean3, pause, timer, x, y
+    global bullet, enemy, enemy_bullet, bullet_timer_player, health_bar, page
+    global bullet_timer_enemy, click_timer, count_timer, score, kills, combo
+    global shield_timer, shield_cooldown, shield_status, shieldedSprite, recharge_status 
     
     background(0)
     stroke(1)
@@ -224,13 +223,13 @@ def game():
                 
     #bullets
     #Not being able to spam bullets
-    if not clickTimer:
-        countTimer += 1 
-        if countTimer >= 25:
-            clickTimer = True
+    if not click_timer:
+        count_timer += 1 
+        if count_timer >= 25:
+            click_timer = True
     
     #time it takes to get more bullets
-    if mousePressed and clickTimer:
+    if mousePressed and click_timer:
         if timer > 20: 
             bullet.append([x, y])
             
@@ -251,7 +250,7 @@ def game():
                     bullet[k][1] >= enemy[0][1] - 25 and 
                     bullet[k][1] <= enemy[0][1] + 25):
                         del bullet[k]
-                        countTimer = 25
+                        count_timer = 25
                         fill(255, 0, 0)
                         u = enemy[0][2] - 1
                         del enemy[0][2]
@@ -266,7 +265,7 @@ def game():
                     bullet[k][1] <= enemy[1][1] + 25):
                         fill(255, 0, 0)
                         del bullet[k]
-                        countTimer = 25
+                        count_timer = 25
                         d = enemy[1][2] - 1
                         del enemy[1][2]
                         enemy[1].append(d)
@@ -279,7 +278,7 @@ def game():
                     bullet[k][1] >= enemy[2][1] - 25 and 
                     bullet[k][1] <= enemy[2][1] + 25):
                         del bullet[k]
-                        countTimer = 25
+                        count_timer = 25
                         fill(255, 0, 0)
                         e = enemy[2][2] - 1
                         del enemy[2][2]
@@ -306,7 +305,7 @@ def game():
         for h in range(len(bullet)):
             if bullet[len(bullet) - 1][1] < 0:
                 del bullet[h]
-                bulletTimerPlayer = True
+                bullet_timer_player = True
     except:
         pass
         
@@ -334,83 +333,84 @@ def game():
         if x >= 775:
             x = 775
     #Shields
-    if rechargeStatus == True:
-        shieldCooldown += 1
+    if recharge_status == True:
+        shield_cooldown += 1
+        rect(400, 0, shield_cooldown, 10) 
         
-    if shieldCooldown == 1764:
-        rechargeStatus = False
+    if shield_cooldown == 850:
+        recharge_status = False
         
-    if shieldCooldown >= 1764:
-        shieldStatus = False
-        shieldCooldown = 0
+    if shield_cooldown >= 850:
+        shield_status = False
+        shield_cooldown = 0
     
-    if keys_pressed[16] and not shieldStatus:
-        if shieldCooldown == 0:
-            shieldStatus = True
+    if keys_pressed[16] and not shield_status:
+        if shield_cooldown == 0:
+            shield_status = True
     
-    if shieldTimer >= 59 or shieldCapacity <= 0:
-        shieldStatus = False
-        shieldTimer = 0
-        rechargeStatus = True
+    if shield_timer >= 59 or shieldCapacity <= 0:
+        shield_status = False
+        shield_timer = 0
+        recharge_status = True
         image(shieldedSprite, 1000, 1000)
         
-    if shieldStatus:
-        shieldTimer += 1
+    if shield_status:
+        shield_timer += 1
         image(shieldedSprite, x, y - 5)
         
-    print(shieldStatus, shieldTimer, shieldCooldown, rechargeStatus)
+    print(shield_status, shield_timer, shield_cooldown, recharge_status)
         
         
     
     try:
-        #enemy 1 healthbar
+        #enemy 1 health_bar
         fill(0, 255,  0)
         rectMode(CORNER)
         if 40 / 3 * enemy[0][2] / 40 * 100 <= 66:
-            healthBar = 40 / 3 * enemy[0][2]
+            health_bar = 40 / 3 * enemy[0][2]
         elif 40 / 3 * enemy[0][2] / 40 * 100 <= 33:
-            healthBar = 40 / 3 * enemy[0][2]
+            health_bar = 40 / 3 * enemy[0][2]
 
-        rect(enemy[0][0] - 21, enemy[0][1] - 35, healthBar, 5)
+        rect(enemy[0][0] - 21, enemy[0][1] - 35, health_bar, 5)
     except:
         pass
         
     try:
-        #enemy 2 healthbar
+        #enemy 2 health_bar
         if 40 / 3 * enemy[1][2] / 40 * 100 <= 66:
-            healthBar = 40 / 3 * enemy[1][2]
+            health_bar = 40 / 3 * enemy[1][2]
         elif 40 / 3 * 1 / 40 * 100 <= 33:
-            healthBar = 40 / 3 * enemy[1][2]
+            health_bar = 40 / 3 * enemy[1][2]
         
-        rect(enemy[1][0] - 21, enemy[1][1] - 35, healthBar, 5)
+        rect(enemy[1][0] - 21, enemy[1][1] - 35, health_bar, 5)
     except:
         pass
     
     try:
-        #enemy 3 healthbar
+        #enemy 3 health_bar
         if 40 / 3 * enemy[2][2] / 40 * 100 <= 66:
-            healthBar = 40 / 3 * enemy[2][2]
+            health_bar = 40 / 3 * enemy[2][2]
         elif 40 / 3 * 1 / 40 * 100 <= 33:
-            healthBar = 40 / 3 * enemy[2][2]
+            health_bar = 40 / 3 * enemy[2][2]
             
-        rect(enemy[2][0] - 21, enemy[2][1] - 35, healthBar, 5)
+        rect(enemy[2][0] - 21, enemy[2][1] - 35, health_bar, 5)
     except:
         pass
     
     #enemy desinated movement
     try:
         #Movement enemy 1
-        if movementBoolean:
+        if movement_boolean:
             enemy[0][0] += 4
             enemy[0][1] += 4
             if enemy[0][0] > 750:
-                movementBoolean = False    
+                movement_boolean = False    
                 
-        if not movementBoolean:
+        if not movement_boolean:
             enemy[0][0] -= 4
             enemy[0][1] += 4
             if enemy[0][0] < 50:
-                movementBoolean = True
+                movement_boolean = True
                 
         if enemy[0][1] >= 700:
             enemy[0][1] = - 25
@@ -419,16 +419,16 @@ def game():
         
     try: 
         #Movement enemy 2
-        if movementBoolean2:
+        if movement_boolean2:
             enemy[1][0] += 4
             enemy[1][1] += 4
             if enemy[1][0] > 750:
-                movementBoolean2 = False    
-        if not movementBoolean2:
+                movement_boolean2 = False    
+        if not movement_boolean2:
             enemy[1][0] -= 4
             enemy[1][1] += 4
             if enemy[1][0] < 50:
-                movementBoolean2 = True
+                movement_boolean2 = True
                 
         if enemy[1][1] >= 700:
             enemy[1][1] = - 25
@@ -437,17 +437,17 @@ def game():
         
     try: 
         #movement enemy 3
-        if movementBoolean3:
+        if movement_boolean3:
             enemy[2][0] += 4
             enemy[2][1] += 4
             if enemy[2][0] > 750:
-                movementBoolean3 = False    
+                movement_boolean3 = False    
                 
-        if not movementBoolean3:
+        if not movement_boolean3:
             enemy[2][0] -= 4
             enemy[2][1] += 4
             if enemy[2][0] < 50:
-                movementBoolean3 = True
+                movement_boolean3 = True
                 
         if enemy[2][1] >= 700:
             enemy[2][1] = - 25
@@ -457,55 +457,55 @@ def game():
     #bullets of enemies
     try:
         #enemy 1
-        bulletTimerEnemy += 1
-        if bulletTimerEnemy % 60 == 0:
-            del enemyBullet[0][0]
-            del enemyBullet[0][0]
-            enemyBullet[0].append(enemy[0][0])
-            enemyBullet[0].append(enemy[0][1])
+        bullet_timer_enemy += 1
+        if bullet_timer_enemy % 60 == 0:
+            del enemy_bullet[0][0]
+            del enemy_bullet[0][0]
+            enemy_bullet[0].append(enemy[0][0])
+            enemy_bullet[0].append(enemy[0][1])
             
         fill(128, 0, 128)
         rectMode(CENTER)
-        image(ebullet_sprite, enemyBullet[0][0], enemyBullet[0][1])
-        enemyBullet[0][1] += 15
+        image(ebullet_sprite, enemy_bullet[0][0], enemy_bullet[0][1])
+        enemy_bullet[0][1] += 15
     except:
         pass
         
     try:
         #enemy 2
-        if bulletTimerEnemy % 65 == 0:
-            del enemyBullet[1][0]
-            del enemyBullet[1][0]
-            enemyBullet[1].append(enemy[1][0])
-            enemyBullet[1].append(enemy[1][1])
+        if bullet_timer_enemy % 65 == 0:
+            del enemy_bullet[1][0]
+            del enemy_bullet[1][0]
+            enemy_bullet[1].append(enemy[1][0])
+            enemy_bullet[1].append(enemy[1][1])
             
         fill(128, 0, 128)
         rectMode(CENTER)
-        image(ebullet_sprite, enemyBullet[1][0], enemyBullet[1][1])
-        enemyBullet[1][1] += 15
+        image(ebullet_sprite, enemy_bullet[1][0], enemy_bullet[1][1])
+        enemy_bullet[1][1] += 15
         
     except:
         pass
     
     try:
         #enemy 3
-        if bulletTimerEnemy % 60 == 0:
-            del enemyBullet[2][0]
-            del enemyBullet[2][0]
-            enemyBullet[2].append(enemy[2][0])
-            enemyBullet[2].append(enemy[2][1])
+        if bullet_timer_enemy % 60 == 0:
+            del enemy_bullet[2][0]
+            del enemy_bullet[2][0]
+            enemy_bullet[2].append(enemy[2][0])
+            enemy_bullet[2].append(enemy[2][1])
             
         fill(128, 0, 128)
         rectMode(CENTER)
-        image(ebullet_sprite, enemyBullet[2][0], enemyBullet[2][1])
-        enemyBullet[2][1] += 15
+        image(ebullet_sprite, enemy_bullet[2][0], enemy_bullet[2][1])
+        enemy_bullet[2][1] += 15
         
     except:
         pass
     
     #Time of duration of enemies fire rate
-    if bulletTimerEnemy >= 70:
-        bulletTimerEnemy = 0
+    if bullet_timer_enemy >= 70:
+        bullet_timer_enemy = 0
     
     #When all planes are dead
     if enemy == []:
@@ -513,7 +513,7 @@ def game():
 
 #when player dies
 def death():
-    global x, y, enemy, playerlives, page, shieldStatus
+    global x, y, enemy, player_lives, page, shield_status
     try:
         if (enemy[0][0] >= x - 45 and enemy[0][0] <= x + 45 and 
             enemy[0][1] >= y - 45 and enemy[0][1] <= y + 45):
@@ -531,16 +531,16 @@ def death():
     
     #enemy bullet contact point with the plane
     try:    
-        if (x - 35 <= enemyBullet[0][0] - 10 and x + 35 >= enemyBullet[0][0] + 10 and 
-            y - 35 <= enemyBullet[0][1] - 10 and y + 35 >= enemyBullet[0][1] + 10):
+        if (x - 35 <= enemy_bullet[0][0] - 10 and x + 35 >= enemy_bullet[0][0] + 10 and 
+            y - 35 <= enemy_bullet[0][1] - 10 and y + 35 >= enemy_bullet[0][1] + 10):
             page = 3
             
-        if (x - 35 <= enemyBullet[1][0] - 10 and x + 35 >= enemyBullet[1][0] + 10 and 
-            y - 35 <= enemyBullet[1][1] - 10 and y + 35 >= enemyBullet[1][1] + 10):
+        if (x - 35 <= enemy_bullet[1][0] - 10 and x + 35 >= enemy_bullet[1][0] + 10 and 
+            y - 35 <= enemy_bullet[1][1] - 10 and y + 35 >= enemy_bullet[1][1] + 10):
             page = 3
             
-        if (x - 35 <= enemyBullet[2][0] - 10 and x + 35 >= enemyBullet[2][0] + 10 and 
-            y - 35 <= enemyBullet[2][1] - 10 and y + 35 >= enemyBullet[2][1] + 10):
+        if (x - 35 <= enemy_bullet[2][0] - 10 and x + 35 >= enemy_bullet[2][0] + 10 and 
+            y - 35 <= enemy_bullet[2][1] - 10 and y + 35 >= enemy_bullet[2][1] + 10):
             page = 3 
     
     except:
@@ -548,56 +548,56 @@ def death():
     
     #enemy contact point with the shield
     try:
-        if (x - 125 <= enemyBullet[0][0] - 10 and x + 125 >= enemyBullet[0][0] + 10 and 
-            y - 125 <= enemyBullet[0][1] - 10 and y + 125 >= enemyBullet[0][1] + 10):
-            if shieldStatus:
-                del enemyBullet[0][0]
-                del enemyBullet[0][0]
-                enemyBullet[0].append(-10)
-                enemyBullet[0].append(0)
+        if (x - 125 <= enemy_bullet[0][0] - 10 and x + 125 >= enemy_bullet[0][0] + 10 and 
+            y - 125 <= enemy_bullet[0][1] - 10 and y + 125 >= enemy_bullet[0][1] + 10):
+            if shield_status:
+                del enemy_bullet[0][0]
+                del enemy_bullet[0][0]
+                enemy_bullet[0].append(-10)
+                enemy_bullet[0].append(0)
             
-        if (x - 125 <= enemyBullet[1][0] - 10 and x + 125 >= enemyBullet[1][0] + 10 and 
-            y - 125 <= enemyBullet[1][1] - 10 and y + 125 >= enemyBullet[1][1] + 10):
-            if shieldStatus:
-                del enemyBullet[1][0]
-                del enemyBullet[1][0]
-                enemyBullet[1].append(-10)
-                enemyBullet[1].append(0)
+        if (x - 125 <= enemy_bullet[1][0] - 10 and x + 125 >= enemy_bullet[1][0] + 10 and 
+            y - 125 <= enemy_bullet[1][1] - 10 and y + 125 >= enemy_bullet[1][1] + 10):
+            if shield_status:
+                del enemy_bullet[1][0]
+                del enemy_bullet[1][0]
+                enemy_bullet[1].append(-10)
+                enemy_bullet[1].append(0)
             
-        if (x - 125 <= enemyBullet[2][0] - 10 and x + 125 >= enemyBullet[2][0] + 10 and 
-            y - 125 <= enemyBullet[2][1] - 10 and y + 125 >= enemyBullet[2][1] + 10):
-            if shieldStatus:
-                del enemyBullet[2][0]
-                del enemyBullet[2][0]
-                enemyBullet[2].append(-10)
-                enemyBullet[2].append(0)
+        if (x - 125 <= enemy_bullet[2][0] - 10 and x + 125 >= enemy_bullet[2][0] + 10 and 
+            y - 125 <= enemy_bullet[2][1] - 10 and y + 125 >= enemy_bullet[2][1] + 10):
+            if shield_status:
+                del enemy_bullet[2][0]
+                del enemy_bullet[2][0]
+                enemy_bullet[2].append(-10)
+                enemy_bullet[2].append(0)
     except:
        pass
 
 #Resets all variables when the game is played again
 def reset():
-    global x, y, playerlives, enemy, enemyBullet, bulletTimerEnemy, bulletPlayerTimer
-    global healthBar, page, countTimer, score, kills, combo, bullet
-    global shieldTimer, shieldCooldown, shieldStatus, shieldCapacity, rechargeStatus 
+    global x, y, player_lives, enemy, enemy_bullet, bullet_timer_enemy, bulletPlayerTimer
+    global health_bar, page, count_timer, score, kills, combo, bullet
+    global shield_timer, shield_cooldown, shield_status, shieldCapacity, recharge_status 
     keys_pressed = [False for key_code in range(256)]
-    x, y, playerlives = 400, 550, 1
+    x, y, player_lives = 400, 550, 1
     enemy = [[400, 100, 3], [300, 100, 3], [500, 100, 3]] 
-    enemyBullet = [[400, 200], [300, 100], [500, 400]] 
+    enemy_bullet = [[400, 200], [300, 100], [500, 400]] 
     z = True
-    bulletTimerPlayer = True
-    clickTimer = True
-    bulletTimerEnemy = 0
-    healthBar = 40
-    countTimer = 0
+    bullet_timer_player = True
+    click_timer = True
+    bullet_timer_enemy = 0
+    health_bar = 40
+    count_timer = 0
     score = 0
     combo = 0
     kills = []
     bullet = []
-    shieldTimer = 0
-    shieldCooldown = 0
-    shieldStatus = False
+    shield_timer = 0
+    shield_cooldown = 0
+    shield_status = False
     shieldCapacity = 2
-    rechargeStatus = False
+    recharge_status = False
     
 #Shows fps in the top left corner
 def framecount():
@@ -661,12 +661,12 @@ def keyReleased():
 #stops spamming mousebutton to fire
 def mousePressed():
     loop()
-    global bullet, clickTimer
-    if clickTimer == True:
+    global bullet, click_timer
+    if click_timer == True:
         bullet.append([x, y])
-        clickTimer = False
+        click_timer = False
 
 def mouseReleased():
-    global clickTimer, countTimer
-    clickTimer = False
-    countTimer = 0
+    global click_timer, count_timer
+    click_timer = False
+    count_timer = 0
