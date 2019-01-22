@@ -163,7 +163,7 @@ def draw():
         fill(255, 0, 0)
         text("<< GAME OVER >>", width/11, height/5)
         textFont(statsfont)
-        text('TIMEU: {}'.format(time), width/16, height/3)
+        text('TIME: {}'.format(time), width/16, height/3)
         textFont(statsfont)
         text('KILLS: {}'.format(kills), width/16, height/2.2)
         textFont(statsfont)
